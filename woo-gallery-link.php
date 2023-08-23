@@ -22,6 +22,7 @@ class wooGalleryLink
     public function __construct()
     {
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
+        register_activation_hook(__FILE__, array($this, 'create_custom_table'));
     }
 
     public function initialize_plugin()
@@ -30,7 +31,7 @@ class wooGalleryLink
             $this->load_woocommerce();
             $products = $this->get_wc_products();
             $image_ids = $this->get_image_ids();
-            $this->check_image_as_main_image($products, $image_ids);
+            $this->get_image_ids_for_sale($products, $image_ids);
         } else {
             echo 'WooCommerce is not active or not properly loaded.';
         }
@@ -83,7 +84,7 @@ class wooGalleryLink
         return $products;
     }
 
-    public function check_image_as_main_image($products, $image_ids)
+    public function get_image_ids_for_sale($products, $image_ids)
     {
         foreach ($products as $product) {
             $product_id = $product->ID;
@@ -99,6 +100,24 @@ class wooGalleryLink
             
             echo "<br>";
         }
+    }
+
+    public function create_custom_table() {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'images_for_sale';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            image_id bigint(20) NOT NULL,
+            product_id bigint(20) NOT NULL,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
     }
 }
 
