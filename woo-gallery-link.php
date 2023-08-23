@@ -26,7 +26,25 @@ class wooGalleryLink
     {
         $this->db = $this->initialize_database_functions();
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
-        register_activation_hook(__FILE__, array($this, 'create_custom_table'));
+        register_activation_hook(__FILE__, array($this, 'activate_plugin'));
+        register_uninstall_hook(__FILE__, array($this, 'deactivate_plugin'));
+    }
+
+    public function get_db()
+    {
+        return $this->db;
+    }
+
+    public static function activate_plugin()
+    {
+        $instance = new self();
+        $instance->db->create_custom_table();
+    }
+
+    public static function deactivate_plugin()
+    {
+        $instance = new self();
+        $instance->db->create_custom_table();
     }
 
     public function initialize_plugin()
@@ -95,48 +113,6 @@ class wooGalleryLink
             if (in_array($product_main_image_id, $image_ids)) {
                 $db->insert_image_for_sale($product_main_image_id, $product_id);
             } 
-        }
-    }
-
-    //Database functions
-    //TODO move database functions to separate file
-
-    public function create_custom_table() {
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . 'images_for_sale';
-
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            image_id bigint(20) NOT NULL,
-            product_id bigint(20) NOT NULL,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
-
-    public function insert_image_for_sale($image_id, $product_id) {
-        global $wpdb;
-    
-        $table_name = $wpdb->prefix . 'images_for_sale';
-    
-        // Check if the entry already exists
-        $existing_entry = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM $table_name WHERE image_id = %d AND product_id = %d", $image_id, $product_id)
-        );
-    
-        if (!$existing_entry) {
-            $wpdb->insert(
-                $table_name,
-                array(
-                    'image_id' => $image_id,
-                    'product_id' => $product_id,
-                )
-            );
         }
     }
 }
