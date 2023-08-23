@@ -23,6 +23,7 @@ class wooGalleryLink
     {
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
         register_activation_hook(__FILE__, array($this, 'create_custom_table'));
+        register_uninstall_hook(__FILE__, array(__CLASS__, 'remove_custom_table'));
     }
 
     public function initialize_plugin()
@@ -40,7 +41,6 @@ class wooGalleryLink
     public function load_woocommerce()
     {
         if (!function_exists('wc')) {
-            include_once(WC()->plugin_path() . '/includes/class-wc-product-query.php');
             include_once(WP_PLUGIN_DIR . '/woocommerce/woocommerce.php');
         }
     }
@@ -129,6 +129,14 @@ class wooGalleryLink
                 )
             );
         }
+    }
+    
+    public static function remove_custom_table() {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'images_for_sale';
+
+        $wpdb->query("DROP TABLE IF EXISTS $table_name");
     }
 }
 
