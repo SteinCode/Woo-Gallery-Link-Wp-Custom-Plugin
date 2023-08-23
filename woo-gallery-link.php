@@ -74,13 +74,7 @@ class wooGalleryLink
         );
         $query = new WP_Query($args);
         $products = $query->get_posts();
-        // // Debug messages
-        // echo 'Query Args: ';
-        // print_r($args);
-        // echo '<br>';
-        // echo 'Query Result: ';
-        // var_dump($query);
-        
+    
         return $products;
     }
 
@@ -89,18 +83,14 @@ class wooGalleryLink
         foreach ($products as $product) {
             $product_id = $product->ID;
             $product_main_image_id = get_post_thumbnail_id($product_id);
-            
-            echo "Product ID: $product_id<br>";
-            
             if (in_array($product_main_image_id, $image_ids)) {
-                echo "Main Image ID ($product_main_image_id) is in the list of all image IDs.";
-            } else {
-                echo "Main Image ID ($product_main_image_id) is not in the list of all image IDs.";
-            }
-            
-            echo "<br>";
+                $this->insert_image_for_sale($product_main_image_id, $product_id);
+            } 
         }
     }
+
+    //Database functions
+    //TODO move database functions to separate file
 
     public function create_custom_table() {
         global $wpdb;
@@ -118,6 +108,27 @@ class wooGalleryLink
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+    }
+
+    public function insert_image_for_sale($image_id, $product_id) {
+        global $wpdb;
+    
+        $table_name = $wpdb->prefix . 'images_for_sale';
+    
+        // Check if the entry already exists
+        $existing_entry = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM $table_name WHERE image_id = %d AND product_id = %d", $image_id, $product_id)
+        );
+    
+        if (!$existing_entry) {
+            $wpdb->insert(
+                $table_name,
+                array(
+                    'image_id' => $image_id,
+                    'product_id' => $product_id,
+                )
+            );
+        }
     }
 }
 
