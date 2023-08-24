@@ -199,6 +199,9 @@ class wooGalleryLink
                     $db->insert_image_for_sale($product_main_image_id, $product_id);
                 }
             }
+            else{
+                $this->product_image_deleted($product_id);
+            }
         }
     }
 
@@ -208,6 +211,15 @@ class wooGalleryLink
      */
     public function product_deleted($product_id)
     {
+        $db = $this->get_db();
+        $db->delete_image_for_sale($product_id);
+    }
+
+    /**
+     * Handle product image deletion
+     * @param int $product_id
+     */
+    public function product_image_deleted($product_id){
         $db = $this->get_db();
         $db->delete_image_for_sale($product_id);
     }

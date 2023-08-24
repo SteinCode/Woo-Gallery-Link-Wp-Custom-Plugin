@@ -87,7 +87,12 @@ class DatabaseFunctions
             )
         );
     }
-    //write a function to return boolean which checks if the product exists in the table
+   
+    /**
+     * Check if an entry exists in the images_for_sale table
+     * by product_id
+     * @return bool
+     */
     public function check_product_exists($product_id) {
         $table_name = $this->wpdb->prefix . 'images_for_sale';
         $query = $this->wpdb->prepare("SELECT * FROM $table_name WHERE product_id = %d", $product_id);
