@@ -26,25 +26,31 @@ class wooGalleryLink
     {
         $this->db = $this->initialize_database_functions();
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
+        add_action('save_post_product', array($this, 'product_created_updated'), 10, 3);
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
-        register_uninstall_hook(__FILE__, array($this, 'deactivate_plugin'));
+        register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
     }
-
+    /**
+     * Get the instance of db
+     * @return DatabaseFunctions
+     */
     public function get_db()
     {
         return $this->db;
     }
-
+    /**
+     * Handle plugin activation
+     */
     public static function activate_plugin()
     {
         $instance = new self();
         $instance->db->create_custom_table();
     }
 
-    public static function deactivate_plugin()
+    public static function uninstall_plugin()
     {
         $instance = new self();
-        $instance->db->create_custom_table();
+        $instance->db->remove_custom_table();
     }
 
     public function initialize_plugin()
