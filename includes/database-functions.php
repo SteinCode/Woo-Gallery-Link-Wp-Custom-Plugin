@@ -48,20 +48,29 @@ class DatabaseFunctions
      */
     public function insert_image_for_sale($image_id, $product_id) {
         $table_name = $this->wpdb->prefix . 'images_for_sale';
-
-        $existing_entry = $this->wpdb->get_row(
-            $this->wpdb->prepare("SELECT * FROM $table_name WHERE image_id = %d AND product_id = %d", $image_id, $product_id)
+        
+        $this->wpdb->insert(
+            $table_name,
+            array(
+                'image_id' => $image_id,
+                'product_id' => $product_id,
+            )
         );
 
-        if (!$existing_entry) {
-            $this->wpdb->insert(
-                $table_name,
-                array(
-                    'image_id' => $image_id,
-                    'product_id' => $product_id,
-                )
-            );
-        }
+    }
+
+    public function update_image_for_sale($product_id, $image_id) {
+        $table_name = $this->wpdb->prefix . 'images_for_sale';
+
+        $this->wpdb->update(
+            $table_name,
+            array(
+                'image_id' => $image_id
+            ),
+            array(
+                'product_id' => $product_id
+            )
+        );
     }
 
     /**
@@ -77,6 +86,17 @@ class DatabaseFunctions
                 'image_id' => $image_id
             )
         );
+    }
+    //write a function to return boolean which checks if the product exists in the table
+    public function check_product_exists($product_id) {
+        $table_name = $this->wpdb->prefix . 'images_for_sale';
+        $query = $this->wpdb->prepare("SELECT * FROM $table_name WHERE product_id = %d", $product_id);
+        $result = $this->wpdb->get_results($query);
+        if (count($result) > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

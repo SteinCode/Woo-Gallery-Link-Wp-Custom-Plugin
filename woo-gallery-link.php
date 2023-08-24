@@ -28,7 +28,7 @@ class wooGalleryLink
 
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
         add_action('save_post_product', array($this, 'product_created_updated'), 10, 3);
-        add_action('before_delete_post', array($this, 'product_deleted'));
+        //add_action('before_delete_post', array($this, 'product_deleted'));
 
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
@@ -181,29 +181,6 @@ class wooGalleryLink
     }
 
     /**
-     * Add image id and product id to the images_for_sale table
-     * @param int $product_id
-     * @param int $image_id
-     */
-
-    public function set_image_for_sale($product_id, $image_id)
-    {
-        $db = $this->get_db();
-        $db->insert_image_for_sale($image_id, $product_id);
-    }
-
-
-    /**
-     * Delete image id from the images_for_sale table
-     * @param int $product_id
-     */
-    public function delete_image_for_sale($image_id)
-    {
-        $db = $this->get_db();
-        $db->delete_image_for_sale($image_id);
-    }
-
-    /**
      * Handle product creation and update
      * @param int $product_id
      * @param WP_Post $post
@@ -214,9 +191,13 @@ class wooGalleryLink
         if ($post->post_type === 'product') {
             $product = wc_get_product($product_id);
             $product_main_image_id = $product->get_image_id();
-
+            $db = $this->get_db();
             if ($product_main_image_id) {
-                $this->set_image_for_sale($product_id, $product_main_image_id);
+                if ($db->check_product_exists($product_id)) {
+                    $db->update_image_for_sale($product_id, $product_main_image_id);
+                } else {
+                    $db->insert_image_for_sale($product_main_image_id, $product_id);
+                }
             }
         }
     }
@@ -229,9 +210,9 @@ class wooGalleryLink
     {
         $product = wc_get_product($product_id);
         $product_main_image_id = $product->get_image_id();
-
+        $db = $this->get_db();
         if ($product_main_image_id) {
-            $this->delete_image_for_sale($product_main_image_id);
+            $db->delete_image_for_sale($product_main_image_id);
         }
     }
     
