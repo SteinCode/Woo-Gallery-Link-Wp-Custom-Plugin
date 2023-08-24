@@ -28,7 +28,7 @@ class wooGalleryLink
 
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
         add_action('save_post_product', array($this, 'product_created_updated'), 10, 3);
-        //add_action('before_delete_post', array($this, 'product_deleted'));
+        add_action('before_delete_post', array($this, 'product_deleted'));
 
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
@@ -208,12 +208,8 @@ class wooGalleryLink
      */
     public function product_deleted($product_id)
     {
-        $product = wc_get_product($product_id);
-        $product_main_image_id = $product->get_image_id();
         $db = $this->get_db();
-        if ($product_main_image_id) {
-            $db->delete_image_for_sale($product_main_image_id);
-        }
+        $db->delete_image_for_sale($product_id);
     }
     
 }

@@ -75,15 +75,15 @@ class DatabaseFunctions
 
     /**
      * Delete an entry from the images_for_sale table
-     * @param int $image_id
+     * @param int $product_id
      */
-    public function delete_image_for_sale($image_id) {
+    public function delete_image_for_sale($product_id) {
         $table_name = $this->wpdb->prefix . 'images_for_sale';
     
         $this->wpdb->delete(
             $table_name,
             array(
-                'image_id' => $image_id
+                'product_id' => $product_id
             )
         );
     }
