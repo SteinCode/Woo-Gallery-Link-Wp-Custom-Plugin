@@ -30,6 +30,7 @@ class wooGalleryLink
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
     }
+
     /**
      * Get the instance of db
      * @return DatabaseFunctions
@@ -38,8 +39,10 @@ class wooGalleryLink
     {
         return $this->db;
     }
+
     /**
      * Handle plugin activation
+     * Creates the images_for_sale table
      */
     public static function activate_plugin()
     {
@@ -47,12 +50,27 @@ class wooGalleryLink
         $instance->db->create_custom_table();
     }
 
+    /**
+     * Handle plugin deactivation
+     */
+    function spectrocoin_deactivate_plugin()
+    {
+        deactivate_plugins(plugin_basename(__FILE__));
+    }
+
+    /**
+     * Handle plugin uninstall
+     * Removes the images_for_sale table
+     */
     public static function uninstall_plugin()
     {
         $instance = new self();
         $instance->db->remove_custom_table();
     }
 
+    /**
+     * Plugin initialization
+     */
     public function initialize_plugin()
     {   
         if (class_exists('WooCommerce')) {
@@ -61,8 +79,19 @@ class wooGalleryLink
             $image_ids = $this->get_image_ids();
             $this->get_image_ids_for_sale($products, $image_ids);
         } else {
-            echo 'WooCommerce is not active or not properly loaded.';
+            $this->spectrocoin_admin_notice('WooCommerce is not active or not properly loaded.');
         }
+    }
+
+    public function spectrocoin_admin_notice($message)
+    {
+        ?>
+        <div class="notice notice-error">
+            <p>
+                <?php echo esc_html($message); ?>
+            </p>
+        </div>
+        <?php
     }
 
     public function initialize_database_functions(){
