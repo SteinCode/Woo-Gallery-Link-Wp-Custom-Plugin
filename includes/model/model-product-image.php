@@ -1,6 +1,11 @@
 <?php
 // model-product-image.php
 
+if (!defined('ABSPATH')) {
+    echo 'You have been stopped from doing bad things';
+    exit;
+}
+
 class ModelProductImage
 {
     private $wpdb;
