@@ -1,7 +1,7 @@
 <?php
-// database-functions.php
+// model-product-image.php
 
-class DatabaseFunctions
+class ModelProductImage
 {
     private $wpdb;
 
@@ -33,12 +33,11 @@ class DatabaseFunctions
      * Removes the images_for_sale table
      * when the plugin is uninstalled
      */
-    public static function remove_custom_table() {
-        global $wpdb;
+    public function remove_custom_table() {
 
-        $table_name = $wpdb->prefix . 'images_for_sale';
+        $table_name = $this->wpdb->prefix . 'images_for_sale';
 
-        $wpdb->query("DROP TABLE IF EXISTS $table_name");
+        $this->wpdb->query("DROP TABLE IF EXISTS $table_name");
     }
 
     /**

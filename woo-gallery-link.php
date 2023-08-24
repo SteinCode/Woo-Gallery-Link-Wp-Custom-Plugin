@@ -17,30 +17,33 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once plugin_dir_path(__FILE__) . 'includes/database-functions.php';
+require_once plugin_dir_path(__FILE__) . 'includes/model/model-product-image.php';
 
 class wooGalleryLink
 {
-    private $db;
+    private $modelproductimage;
     public function __construct()
     {
-        $this->db = $this->initialize_database_functions();
+        $this->modelproductimage = $this->initialize_modelproductimage_functions();
 
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
         add_action('save_post_product', array($this, 'product_created_updated'), 10, 3);
         add_action('before_delete_post', array($this, 'product_deleted'));
+        add_action('admin_menu', array($this, 'add_plugin_settings_page'));
+
+        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
 
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
     }
 
     /**
-     * Get the instance of db
-     * @return DatabaseFunctions
+     * Get the instance of ModelProductImage class
+     * @return ModelProductImage
      */
-    public function get_db()
+    public function get_modelproductimage()
     {
-        return $this->db;
+        return $this->modelproductimage;
     }
 
     /**
@@ -102,12 +105,45 @@ class wooGalleryLink
     }
 
     /**
-     * Database object initialization
-     * @return DatabaseFunctions
+     * Add plugin settings page
      */
-    public function initialize_database_functions(){
+    public function add_settings_link($links)
+    {
+        $settings_link = '<a href="' . esc_url(admin_url('options-general.php?page=woo-gallery-link-settings')) . '">' . esc_html__('Settings', 'woo-gallery-link') . '</a>';
+        array_push($links, $settings_link);
+        return $links;
+    }
+    /**
+     * Add plugin settings page
+     */
+    public function add_plugin_settings_page()
+    {
+        add_submenu_page(
+            'options-general.php',
+            __('Woo Gallery Link Settings', 'woo-gallery-link'),
+            __('Woo Gallery Link Settings', 'woo-gallery-link'),
+            'manage_options',
+            'woo-gallery-link-settings',
+            array($this, 'render_plugin_settings')
+        );
+    }
+
+    /**
+     * Render the plugin settings page
+     */
+    public function render_plugin_settings()
+    {
+        // Include the settings file to display the settings page content
+        include plugin_dir_path(__FILE__) . 'includes/view/settings.php';
+    }
+
+    /**
+     * ModelProductImage object initialization
+     * @return ModelProductImage
+     */
+    public function initialize_modelproductimage_functions(){
         global $wpdb;
-        $db = new DatabaseFunctions($wpdb);
+        $db = new ModelProductImage($wpdb);
         return $db;
     }
 
@@ -170,7 +206,7 @@ class wooGalleryLink
      */
     public function init_images_for_sale($products, $image_ids)
     {
-        $db = $this->get_db();
+        $db = $this->get_modelproductimage();
         foreach ($products as $product) {
             $product_id = $product->ID;
             $product_main_image_id = get_post_thumbnail_id($product_id);
@@ -191,7 +227,7 @@ class wooGalleryLink
         if ($post->post_type === 'product') {
             $product = wc_get_product($product_id);
             $product_main_image_id = $product->get_image_id();
-            $db = $this->get_db();
+            $db = $this->get_modelproductimage();
             if ($product_main_image_id) {
                 if ($db->check_product_exists($product_id)) {
                     $db->update_image_for_sale($product_id, $product_main_image_id);
@@ -211,7 +247,7 @@ class wooGalleryLink
      */
     public function product_deleted($product_id)
     {
-        $db = $this->get_db();
+        $db = $this->get_modelproductimage();
         $db->delete_image_for_sale($product_id);
     }
 
@@ -220,7 +256,7 @@ class wooGalleryLink
      * @param int $product_id
      */
     public function product_image_deleted($product_id){
-        $db = $this->get_db();
+        $db = $this->get_modelproductimage();
         $db->delete_image_for_sale($product_id);
     }
 
