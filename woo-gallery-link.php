@@ -77,12 +77,15 @@ class wooGalleryLink
             $this->load_woocommerce();
             $products = $this->get_wc_products();
             $image_ids = $this->get_image_ids();
-            $this->get_image_ids_for_sale($products, $image_ids);
+            $this->init_images_for_sale($products, $image_ids);
         } else {
             $this->spectrocoin_admin_notice('WooCommerce is not active or not properly loaded.');
         }
     }
 
+    /**
+     * Log admin notice
+     */
     public function spectrocoin_admin_notice($message)
     {
         ?>
@@ -94,12 +97,19 @@ class wooGalleryLink
         <?php
     }
 
+    /**
+     * Database object initialization
+     * @return DatabaseFunctions
+     */
     public function initialize_database_functions(){
         global $wpdb;
         $db = new DatabaseFunctions($wpdb);
         return $db;
     }
 
+    /**
+     * Include WooCommerce functions
+     */
     public function load_woocommerce()
     {
         if (!function_exists('wc')) {
@@ -107,6 +117,10 @@ class wooGalleryLink
         }
     }
 
+    /**
+     * Get ids of all images in the WP gallery
+     * @return array $image_ids
+     */
     public function get_image_ids()
     {
         $ids = get_posts(
@@ -125,6 +139,10 @@ class wooGalleryLink
         return $image_ids;
     }
 
+    /**
+     * Get all WooCommerce products
+     * @return array $products
+     */
     public function get_wc_products()
     {
         $args = array(
@@ -139,7 +157,14 @@ class wooGalleryLink
         return $products;
     }
 
-    public function get_image_ids_for_sale($products, $image_ids)
+    /**
+     * Checks if the image is in the product gallery
+     * And if it is, adds it to the images_for_sale table
+     * Use it on plugin initialization to add all images to the table
+     * @param array $products
+     * @param array $image_ids
+     */
+    public function init_images_for_sale($products, $image_ids)
     {
         $db = $this->get_db();
         foreach ($products as $product) {
@@ -149,6 +174,29 @@ class wooGalleryLink
                 $db->insert_image_for_sale($product_main_image_id, $product_id);
             } 
         }
+    }
+
+    /**
+     * Add image id and product id to the images_for_sale table
+     * @param int $product_id
+     * @param int $image_id
+     */
+
+    public function set_image_for_sale($product_id, $image_id)
+    {
+        $db = $this->get_db();
+        $db->insert_image_for_sale($image_id, $product_id);
+    }
+
+
+    /**
+     * Delete image id from the images_for_sale table
+     * @param int $product_id
+     */
+    public function delete_image_for_sale($image_id)
+    {
+        $db = $this->get_db();
+        $db->delete_image_for_sale($image_id);
     }
 }
 
