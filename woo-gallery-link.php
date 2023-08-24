@@ -25,8 +25,11 @@ class wooGalleryLink
     public function __construct()
     {
         $this->db = $this->initialize_database_functions();
+
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
         add_action('save_post_product', array($this, 'product_created_updated'), 10, 3);
+        add_action('before_delete_post', array($this, 'product_deleted'));
+
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
     }
@@ -44,10 +47,14 @@ class wooGalleryLink
      * Handle plugin activation
      * Creates the images_for_sale table
      */
-    public static function activate_plugin()
+    public function activate_plugin()
     {
         $instance = new self();
         $instance->db->create_custom_table();
+
+        $products = $this->get_wc_products();
+        $image_ids = $this->get_image_ids();
+        $this->init_images_for_sale($products, $image_ids);
     }
 
     /**
@@ -75,9 +82,6 @@ class wooGalleryLink
     {   
         if (class_exists('WooCommerce')) {
             $this->load_woocommerce();
-            $products = $this->get_wc_products();
-            $image_ids = $this->get_image_ids();
-            $this->init_images_for_sale($products, $image_ids);
         } else {
             $this->spectrocoin_admin_notice('WooCommerce is not active or not properly loaded.');
         }
@@ -198,6 +202,39 @@ class wooGalleryLink
         $db = $this->get_db();
         $db->delete_image_for_sale($image_id);
     }
+
+    /**
+     * Handle product creation and update
+     * @param int $product_id
+     * @param WP_Post $post
+     * @param bool $update
+     */
+    public function product_created_updated($product_id, $post, $update)
+    {
+        if ($post->post_type === 'product') {
+            $product = wc_get_product($product_id);
+            $product_main_image_id = $product->get_image_id();
+
+            if ($product_main_image_id) {
+                $this->set_image_for_sale($product_id, $product_main_image_id);
+            }
+        }
+    }
+
+    /**
+     * Handle product deletion
+     * @param int $product_id
+     */
+    public function product_deleted($product_id)
+    {
+        $product = wc_get_product($product_id);
+        $product_main_image_id = $product->get_image_id();
+
+        if ($product_main_image_id) {
+            $this->delete_image_for_sale($product_main_image_id);
+        }
+    }
+    
 }
 
 new wooGalleryLink;
