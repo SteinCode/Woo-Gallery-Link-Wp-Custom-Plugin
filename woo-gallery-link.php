@@ -83,14 +83,14 @@ class wooGalleryLink
         if (class_exists('WooCommerce')) {
             $this->load_woocommerce();
         } else {
-            $this->spectrocoin_admin_notice('WooCommerce is not active or not properly loaded.');
+            $this->display_admin_notice('WooCommerce is not active or not properly loaded.');
         }
     }
 
     /**
      * Log admin notice
      */
-    public function spectrocoin_admin_notice($message)
+    public function display_admin_notice($message)
     {
         ?>
         <div class="notice notice-error">
@@ -223,7 +223,7 @@ class wooGalleryLink
         $db = $this->get_db();
         $db->delete_image_for_sale($product_id);
     }
-    
+
 }
 
 new wooGalleryLink;
