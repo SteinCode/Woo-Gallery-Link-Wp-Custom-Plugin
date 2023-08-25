@@ -30,10 +30,6 @@ class wooGalleryLink
 
         $controllerProductImage = $this->initialize_controller_product_image();
 
-
-        // add_action('admin_menu', array($this, 'add_plugin_settings_page'));
-        // add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
-
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
     }

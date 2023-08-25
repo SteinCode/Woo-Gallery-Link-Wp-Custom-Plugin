@@ -1,0 +1,54 @@
+/* TEMPORARY */
+.flex {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: gray;
+}
+
+.buy-tag-1 {
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(
+    150deg,
+    rgba(213, 250, 211, 0.886787991563813),
+    rgba(122, 247, 142, 0.9316059187346813),
+    rgba(0, 255, 28, 1),
+    rgba(189, 253, 196, 1)
+  );
+  border-radius: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, background 0.3s ease;
+  animation: pulse infinite 4s;
+  z-index: 0;
+  overflow: visible;
+  box-shadow: rgba(220, 252, 220, 0.4) 0px 48px 100px 0px;
+}
+
+.buy-tag:hover {
+  background: linear-gradient(
+    150deg,
+    rgba(213, 250, 211, 0.886787991563813),
+    rgba(122, 247, 142, 0.9316059187346813),
+    rgba(0, 255, 28, 1),
+    rgba(189, 253, 196, 1),
+    rgba(213, 250, 211, 0.886787991563813)
+  );
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
