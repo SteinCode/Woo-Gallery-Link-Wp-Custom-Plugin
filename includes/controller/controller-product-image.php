@@ -23,10 +23,12 @@ class ControllerProductImage
      * Get the instance of ModelProductImage class
      * @return ModelProductImage
      */
-    public function get_modelproductimage()
+    public function get_model_product_image()
     {
         return $this->modelProductImage;
     }
+
+    
 
     /**
      * ModelProductImage object initialization
@@ -87,12 +89,14 @@ class ControllerProductImage
      */
     public function init_images_for_sale($products, $image_ids)
     {
-        $db = $this->get_modelproductimage();
+        $db = $this->get_model_product_image();
         foreach ($products as $product) {
             $product_id = $product->ID;
             $product_main_image_id = get_post_thumbnail_id($product_id);
             if (in_array($product_main_image_id, $image_ids)) {
-                $db->insert_image_for_sale($product_main_image_id, $product_id);
+                if ($db->check_product_exists($product_id) == false){
+                    $db->insert_image_for_sale($product_main_image_id, $product_id);
+                }
             } 
         }
     }
@@ -108,7 +112,7 @@ class ControllerProductImage
         if ($post->post_type === 'product') {
             $product = wc_get_product($product_id);
             $product_main_image_id = $product->get_image_id();
-            $db = $this->get_modelproductimage();
+            $db = $this->get_model_product_image();
             if ($product_main_image_id) {
                 if ($db->check_product_exists($product_id)) {
                     $db->update_image_for_sale($product_id, $product_main_image_id);
@@ -128,7 +132,7 @@ class ControllerProductImage
      */
     public function product_deleted($product_id)
     {
-        $db = $this->get_modelProductImage();
+        $db = $this->get_model_product_image();
         $db->delete_image_for_sale($product_id);
     }
 
@@ -137,7 +141,7 @@ class ControllerProductImage
      * @param int $product_id
      */
     public function product_image_deleted($product_id){
-        $db = $this->get_modelProductImage();
+        $db = $this->get_model_product_image();
         $db->delete_image_for_sale($product_id);
     }
 

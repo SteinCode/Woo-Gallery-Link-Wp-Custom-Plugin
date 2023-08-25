@@ -22,7 +22,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/controller/controller-product
 class wooGalleryLink
 {
     private $controllerProductImage;
-
+    private $modelProductImage;
     public function __construct()
     {
 
@@ -49,18 +49,31 @@ class wooGalleryLink
         return $this->controllerProductImage;
     }
 
+    public function initialize_model_product_image()
+    {
+        $this->modelProductImage = new ModelProductImage();
+        return $this-> modelProductImage;
+    }
+
+    public function get_model_product_image()
+    {
+        return $this->modelProductImage;
+    }
+
     /**
      * Handle plugin activation
      * Creates the images_for_sale table
      */
     public function activate_plugin()
-    {
+    {        
         $controller_product_image = $this->get_controller_product_image();
         
         $controller_product_image->get_model_product_image()->create_custom_table();
         
-        $products = $controller_product_image->get_model_product_image()->get_wc_products();
-        $image_ids = $controller_product_image->get_model_product_image()->get_image_ids();
+        $products = $controller_product_image->get_wc_products();
+
+        $image_ids = $controller_product_image->get_image_ids();
+
         $controller_product_image->init_images_for_sale($products, $image_ids);
     }
 
@@ -76,10 +89,9 @@ class wooGalleryLink
      * Handle plugin uninstall
      * Removes the images_for_sale table
      */
-    public static function uninstall_plugin()
+    public function uninstall_plugin()
     {
-        $instance = new self();
-        $controller_product_image = $instance->get_controller_product_image();
+        $controller_product_image = $this->get_controller_product_image();
         
         $controller_product_image->get_model_product_image()->remove_custom_table();
     }
