@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
 class ModelProductImage
 {
     private $wpdb;
@@ -16,9 +17,9 @@ class ModelProductImage
 
     /**
      * Creates the images_for_sale table
-     * when the plugin is activated
+     * when the plugin is initially activated
      */
-    public function create_custom_table() {
+    public function create_images_for_sale_table() {
         $table_name = $this->wpdb->prefix . 'images_for_sale';
 
         $charset_collate = $this->wpdb->get_charset_collate();
@@ -38,7 +39,7 @@ class ModelProductImage
      * Removes the images_for_sale table
      * when the plugin is uninstalled
      */
-    public function remove_custom_table() {
+    public function remove_images_for_sale_table() {
 
         $table_name = $this->wpdb->prefix . 'images_for_sale';
 

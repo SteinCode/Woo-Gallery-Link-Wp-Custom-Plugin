@@ -15,23 +15,32 @@ if (!defined('ABSPATH')) {
 // Enable error reporting
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// error_reporting(E_ALL);
 
 require_once plugin_dir_path(__FILE__) . 'includes/controller/controller-product-image.php';
+require_once plugin_dir_path(__FILE__) . 'includes/controller/controller-settings.php';
 
 class wooGalleryLink
 {
+    //Controllers
     private $controllerProductImage;
-    private $modelProductImage;
+    private $controllerSettings;
+
     public function __construct()
     {
 
+        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
+
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
+        add_action('admin_menu', array($this, 'add_plugin_settings_page'));
 
         $controllerProductImage = $this->initialize_controller_product_image();
+        $controllerSettings = $this->initialize_controller_settings();
 
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
+
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_custom_styles'));
     }
 
     public function initialize_controller_product_image()
@@ -40,20 +49,25 @@ class wooGalleryLink
         return $this->controllerProductImage;
     }
 
+    public function initialize_controller_settings()
+    {
+        $this->controllerSettings = new ControllerSettings();
+        return $this->controllerSettings;
+    }
+
     public function get_controller_product_image()
     {
         return $this->controllerProductImage;
     }
 
-    public function initialize_model_product_image()
+    public function get_controller_settings()
     {
-        $this->modelProductImage = new ModelProductImage();
-        return $this-> modelProductImage;
+        return $this->controllerSettings;
     }
 
-    public function get_model_product_image()
+    public function enqueue_custom_styles()
     {
-        return $this->modelProductImage;
+    wp_enqueue_style('buy-bubbles', plugin_dir_url(__FILE__) . 'assets/css/buy-bubbles.css');
     }
 
     /**
@@ -64,7 +78,7 @@ class wooGalleryLink
     {        
         $controller_product_image = $this->get_controller_product_image();
         
-        $controller_product_image->get_model_product_image()->create_custom_table();
+        $controller_product_image->get_model_product_image()->create_images_for_sale_table();
         
         $products = $controller_product_image->get_wc_products();
 
@@ -76,7 +90,7 @@ class wooGalleryLink
     /**
      * Handle plugin deactivation
      */
-    function spectrocoin_deactivate_plugin()
+    function deactivate_plugin()
     {
         deactivate_plugins(plugin_basename(__FILE__));
     }
@@ -89,7 +103,7 @@ class wooGalleryLink
     {
         $controller_product_image = $this->get_controller_product_image();
         
-        $controller_product_image->get_model_product_image()->remove_custom_table();
+        $controller_product_image->get_model_product_image()->remove_images_for_sale_table();
     }
 
     /**
@@ -131,38 +145,39 @@ class wooGalleryLink
     /**
      * Add plugin settings page
      */
-    // public function add_settings_link($links)
-    // {
-    //     $settings_link = '<a href="' . esc_url(admin_url('options-general.php?page=woo-gallery-link-settings')) . '">' . esc_html__('Settings', 'woo-gallery-link') . '</a>';
-    //     array_push($links, $settings_link);
-    //     return $links;
-    // }
-    /**
-     * Add plugin settings page
-     */
-    // public function add_plugin_settings_page()
-    // {
-    //     add_submenu_page(
-    //         'options-general.php',
-    //         __('Woo Gallery Link Settings', 'woo-gallery-link'),
-    //         __('Woo Gallery Link Settings', 'woo-gallery-link'),
-    //         'manage_options',
-    //         'woo-gallery-link-settings',
-    //         array($this, 'render_plugin_settings')
-    //     );
-    // }
+    public function add_plugin_settings_page()
+    {
+        add_submenu_page(
+            'options-general.php',
+            __('Woo Gallery Link Settings', 'woo-gallery-link'),
+            __('Woo Gallery Link Settings', 'woo-gallery-link'),
+            'manage_options',
+            'woo-gallery-link-settings',
+            array($this, 'render_plugin_settings')
+        );
+    }
 
     /**
      * Render the plugin settings page
      */
-    // public function render_plugin_settings()
-    // {
-    //     // Include the settings file to display the settings page content
-    //     include plugin_dir_path(__FILE__) . 'includes/view/view-settings.php';
-    //     include plugin_dir_path(__FILE__) . 'includes/controller/controller-settings.php';
-    // }
+    public function render_plugin_settings()
+    {
+        // Include the settings file to display the settings page content
+        include plugin_dir_path(__FILE__) . 'includes/view/view-settings.php';
+    }
 
+    /**
+     * Add plugin settings page
+     */
+    public function add_settings_link($links)
+    {
+        $settings_link = '<a href="' . esc_url(admin_url('options-general.php?page=woo-gallery-link-settings')) . '">' . esc_html__('Settings', 'woo-gallery-link') . '</a>';
+        array_push($links, $settings_link);
+        return $links;
+    }
 
 }
+
+//add asked logic here
 
 new wooGalleryLink;

@@ -28,8 +28,6 @@ class ControllerProductImage
         return $this->modelProductImage;
     }
 
-    
-
     /**
      * ModelProductImage object initialization
      * @return ModelProductImage
