@@ -29,10 +29,11 @@ class wooGalleryLink
     public function __construct()
     {
 
+        include_once plugin_dir_path(__FILE__) . 'includes/view/view-settings.php';
+
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
 
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
-        add_action('admin_menu', array($this, 'add_plugin_settings_page'));
 
         $controllerProductImage = $this->initialize_controller_product_image();
         $controllerSettings = $this->initialize_controller_settings();
@@ -41,6 +42,11 @@ class wooGalleryLink
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
 
         add_action('wp_enqueue_scripts', array($this, 'enqueue_custom_styles'));
+
+        $settings = new ViewSettings();
+
+        add_action('admin_menu', array($settings, 'add_settings_page'));
+        add_action('admin_init', array($settings, 'register_settings'));
     }
 
     public function initialize_controller_product_image()
@@ -142,29 +148,6 @@ class wooGalleryLink
         <?php
     }
 
-    /**
-     * Add plugin settings page
-     */
-    public function add_plugin_settings_page()
-    {
-        add_submenu_page(
-            'options-general.php',
-            __('Woo Gallery Link Settings', 'woo-gallery-link'),
-            __('Woo Gallery Link Settings', 'woo-gallery-link'),
-            'manage_options',
-            'woo-gallery-link-settings',
-            array($this, 'render_plugin_settings')
-        );
-    }
-
-    /**
-     * Render the plugin settings page
-     */
-    public function render_plugin_settings()
-    {
-        // Include the settings file to display the settings page content
-        include plugin_dir_path(__FILE__) . 'includes/view/view-settings.php';
-    }
 
     /**
      * Add plugin settings page
@@ -177,7 +160,5 @@ class wooGalleryLink
     }
 
 }
-
-//add asked logic here
 
 new wooGalleryLink;
