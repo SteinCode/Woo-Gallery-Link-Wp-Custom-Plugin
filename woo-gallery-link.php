@@ -18,7 +18,6 @@ ini_set('display_startup_errors', 1);
 // error_reporting(E_ALL);
 
 require_once plugin_dir_path(__FILE__) . 'includes/controller/controller-product-image.php';
-require_once plugin_dir_path(__FILE__) . 'includes/controller/controller-settings.php';
 
 class wooGalleryLink
 {
@@ -36,7 +35,6 @@ class wooGalleryLink
         add_action('plugins_loaded', array($this, 'initialize_plugin'));
 
         $controllerProductImage = $this->initialize_controller_product_image();
-        $controllerSettings = $this->initialize_controller_settings();
 
         register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         register_uninstall_hook(__FILE__, array($this, 'uninstall_plugin'));
@@ -54,12 +52,6 @@ class wooGalleryLink
     {
         $this->controllerProductImage = new ControllerProductImage();
         return $this->controllerProductImage;
-    }
-
-    public function initialize_controller_settings()
-    {
-        $this->controllerSettings = new ControllerSettings();
-        return $this->controllerSettings;
     }
 
     public function get_controller_product_image()
@@ -159,10 +151,15 @@ class wooGalleryLink
         return $links;
     }
 
-    public function console_log_on_page_load()
+    public function get_selected_pages()
     {
-    // Replace 'your-page-slug' with the actual slug of the page you want to target
-    if (is_page('gallery')) {
+    $selected_pages = get_option('selected_pages', array());
+
+    // Get the current page ID
+    $current_page_id = get_queried_object_id();
+
+    // Check if the current page is in the selected pages array
+    if (in_array($current_page_id, $selected_pages)) {
         echo '<script>console.log("Page loaded: Your Target Page");</script>';
     }
     }
