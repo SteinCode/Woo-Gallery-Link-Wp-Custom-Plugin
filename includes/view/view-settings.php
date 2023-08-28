@@ -30,8 +30,20 @@ class ViewSettings {
             <h2>Woo Gallery Link Settings</h2>
             <form method="post" action="options.php">
                 <?php
-                    settings_fields('woo_gallery_link_settings_group');
+                    settings_fields('woo_gallery_link_settings_group'); // Correct group name
                     do_settings_sections('woo-gallery-link-settings');
+                    
+                ?>
+                <h3>Select Pages</h3>
+                <?php
+                    $pages = get_pages();
+                    $selected_pages = get_option('selected_pages', array());
+                    foreach ($pages as $page) {
+                        $page_id = $page->ID;
+                        $page_title = $page->post_title;
+                        $checked = in_array($page_id, $selected_pages) ? 'checked="checked"' : '';
+                        echo '<label><input type="checkbox" name="selected_pages[]" value="' . $page_id . '" ' . $checked . '> ' . $page_title . '</label><br>';
+                    }
                     submit_button();
                 ?>
             </form>
@@ -40,35 +52,20 @@ class ViewSettings {
     }
 
     public function register_settings() {
-        add_settings_section(
-            'woo_gallery_general_section',    // ID
-            'General Settings',               // Title
-            array($this, 'general_section_callback'), // Callback
-            'woo-gallery-link-settings'       // Page
-        );
-
-        add_settings_field(
-            'woo_gallery_enable_feature',     // ID
-            'Enable Feature',                 // Title
-            array($this, 'enable_feature_callback'), // Callback
-            'woo-gallery-link-settings',      // Page
-            'woo_gallery_general_section'     // Section
-        );
-
         register_setting(
-            'woo_gallery_link_settings_group', // Option group
-            'woo_gallery_enable_feature'       // Option name
+            'woo_gallery_link_settings_group',  // Settings group name
+            'selected_pages',                   // Option name
+            array($this, 'sanitize_selected_pages') // Sanitization callback
         );
     }
 
-    public function general_section_callback() {
-        echo 'General settings description here.';
-    }
-
-    public function enable_feature_callback() {
-        $enabled = get_option('woo_gallery_enable_feature');
-        ?>
-        <input type="checkbox" name="woo_gallery_enable_feature" value="1" <?php checked(1, $enabled); ?>>
-        <?php
+    public function sanitize_selected_pages($input) {
+        $sanitized_input = array();
+        if (is_array($input)) {
+            foreach ($input as $page_id) {
+                $sanitized_input[] = absint($page_id); // Ensure it's an integer
+            }
+        }
+        return $sanitized_input;
     }
 }

@@ -47,6 +47,7 @@ class wooGalleryLink
 
         add_action('admin_menu', array($settings, 'add_settings_page'));
         add_action('admin_init', array($settings, 'register_settings'));
+        add_action('template_redirect', array($this, 'console_log_on_page_load'));
     }
 
     public function initialize_controller_product_image()
@@ -148,7 +149,6 @@ class wooGalleryLink
         <?php
     }
 
-
     /**
      * Add plugin settings page
      */
@@ -157,6 +157,14 @@ class wooGalleryLink
         $settings_link = '<a href="' . esc_url(admin_url('options-general.php?page=woo-gallery-link-settings')) . '">' . esc_html__('Settings', 'woo-gallery-link') . '</a>';
         array_push($links, $settings_link);
         return $links;
+    }
+
+    public function console_log_on_page_load()
+    {
+    // Replace 'your-page-slug' with the actual slug of the page you want to target
+    if (is_page('gallery')) {
+        echo '<script>console.log("Page loaded: Your Target Page");</script>';
+    }
     }
 
 }

@@ -8,5 +8,5 @@ if (!defined('ABSPATH')) {
 
 class ControllerSettings{
     
-
+    
 }
