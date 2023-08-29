@@ -109,4 +109,15 @@ class ModelProductImage
         }
     }
 
+    public function check_image_exists($image_id) {
+        $table_name = $this->wpdb->prefix . 'images_for_sale';
+        $query = $this->wpdb->prepare("SELECT * FROM $table_name WHERE product_id = %d", $image_id);
+        $result = $this->wpdb->get_results($query);
+        if (count($result) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

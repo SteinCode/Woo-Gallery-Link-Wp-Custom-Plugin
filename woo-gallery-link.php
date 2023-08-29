@@ -45,7 +45,7 @@ class wooGalleryLink
 
         add_action('admin_menu', array($settings, 'add_settings_page'));
         add_action('admin_init', array($settings, 'register_settings'));
-        add_action('template_redirect', array($this, 'console_log_on_page_load'));
+        add_action('template_redirect', array($this, 'get_selected_pages'));
     }
 
     public function initialize_controller_product_image()
@@ -151,6 +151,7 @@ class wooGalleryLink
         return $links;
     }
 
+
     public function get_selected_pages()
     {
     $selected_pages = get_option('selected_pages', array());
@@ -161,8 +162,32 @@ class wooGalleryLink
     // Check if the current page is in the selected pages array
     if (in_array($current_page_id, $selected_pages)) {
         echo '<script>console.log("Page loaded: Your Target Page");</script>';
+
+        $this->scan_page_for_images();
+        }
     }
+
+    public function scan_page_for_images()
+    {
+        // Get the current page ID
+        $current_page_id = get_queried_object_id();
+        var_dump($current_page_id);
+        echo '</br>';
+        // Check if the current page is the one you want to scan
+        if ($current_page_id) {
+            // Get all attached media for the current page
+            $attached_media = get_attached_media('image', $current_page_id);
+            var_dump($attached_media);
+            // Count the number of attached images
+            $image_count = count($attached_media);
+    
+            // Print the image count to the console
+            echo '<script>console.log("Number of images on page: ' . $image_count . '");</script>';
+        }
     }
+    
+
+    
 
 }
 
