@@ -167,24 +167,43 @@ class wooGalleryLink
         }
     }
 
+    function get_all_media_attachments($post_id) {
+        $args = array(
+            'post_parent' => $post_id,
+            'post_type' => 'attachment',
+            'posts_per_page' => -1,
+        );
+    
+        $attachments = get_posts($args);
+        
+        return $attachments;
+    }
+    
+
     public function scan_page_for_images()
     {
-        // Get the current page ID
-        $current_page_id = get_queried_object_id();
-        var_dump($current_page_id);
-        echo '</br>';
-        // Check if the current page is the one you want to scan
-        if ($current_page_id) {
-            // Get all attached media for the current page
-            $attached_media = get_attached_media('image', $current_page_id);
-            var_dump($attached_media);
-            // Count the number of attached images
-            $image_count = count($attached_media);
-    
-            // Print the image count to the console
-            echo '<script>console.log("Number of images on page: ' . $image_count . '");</script>';
-        }
+    // Get the current page ID
+    $current_page_id = get_queried_object_id();
+    var_dump($current_page_id);
+    echo '</br>';
+
+    // Check if the current page is the one you want to scan
+    if ($current_page_id) {
+        // Get all attached media for the current page
+        $attached_media = $this->get_all_media_attachments($current_page_id); // Using the custom function
+        var_dump($attached_media);
+
+        // Count the number of attached images
+        $image_count = count($attached_media);
+
+        // Print the image count to the console
+        echo '<script>console.log("Number of images on page: ' . $image_count . '");</script>';
     }
+}
+
+
+
+    
     
 
     
